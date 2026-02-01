@@ -40,8 +40,11 @@ Conformément à la consigne fournie, ce TP vise à :
 
 C:\tp_docker_spark_mongo
 │
+
 ├── data        → Données sources (CSV OpenData)
+
 ├── scripts     → Scripts PySpark
+
 └── output      → Données transformées (JSON)
 
 **Création de la structure du projet**
@@ -260,5 +263,6 @@ db.logements_regions.countDocuments()
 db.logements_regions.findOne()
 
 exit
+
 
 exit
