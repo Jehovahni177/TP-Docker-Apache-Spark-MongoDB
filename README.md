@@ -416,24 +416,22 @@ exit
 
 ##  Résumé du pipeline
 
-\`
 
-CSV (OpenData)
+**CSV** (OpenData)
     
-[Docker Spark]  Nettoyage & Transformation
+**[Docker Spark]**  Nettoyage & Transformation
     
-JSON (formaté)
+**JSON** (formaté)
     
-[Docker MongoDB]  Stockage flexible
+**[Docker MongoDB]**  Stockage flexible
     
 Collection NoSQL prête à l'exploitation
 
-\`
 
 ---
 
-** Données utilisées :** Logements régionaux (Caisse des Dépôts - data.gouv)
+**Données utilisées :** Logements régionaux (Caisse des Dépôts - data.gouv)
 
-** Stack technique :** Docker + Spark 3.5.6 + MongoDB + PySpark
+**Stack technique :** Docker + Spark 3.5.6 + MongoDB + PySpark
 
-** Dernière mise à jour :** Février 2026
+**Dernière mise à jour :** Février 2026
