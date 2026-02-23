@@ -31,20 +31,17 @@ Il repose sur l'utilisation conjointe de :
 
 ### Vérification de Docker
 
-\`powershell
-
+```powershell
 docker --version
 
 docker ps
-
-\`
+```
 
 ---
 
 ##  4. Structure du projet
 
-\`
-
+```
 C:\tp_docker_spark_mongo
 
  data/           Données sources (CSV)
@@ -52,40 +49,33 @@ C:\tp_docker_spark_mongo
  scripts/        Scripts PySpark
 
  output/         Données transformées (JSON)
-
-\`
+```
 
 ### Création de la structure
 
-\`powershell
-
+```powershell
 mkdir C:\tp_docker_spark_mongo
 
 cd C:\tp_docker_spark_mongo
 
 mkdir data, output, scripts
-
-\`
+```
 
 ### Dépôt du fichier CSV
 
 Le fichier **logements_regions.csv** (OpenData CDC) doit être placé ici :
 
-\`
-
+```
 C:\tp_docker_spark_mongo\data\logements_regions.csv
-
-\`
+```
 
 ### Vérification
 
-\`powershell
-
+```powershell
 Get-Item .\data\logements_regions.csv
 
 Get-Content .\data\logements_regions.csv -TotalCount 3
-
-\`
+```
 
 ---
 
@@ -93,58 +83,49 @@ Get-Content .\data\logements_regions.csv -TotalCount 3
 
 ### Création d'un réseau Docker
 
-\`bash
-
+```bash
 docker network create tp-net
-
-\`
+```
 
 ### Lancement de MongoDB
 
-\`bash
+```bash
 
 docker pull mongo:latest
 
 docker run -d --name mongo-tp --network tp-net -p 27017:27017 mongo:latest
-
-\`
+```
 
 ### Vérification de MongoDB
 
-\`bash
-
+```bash
 docker ps
-
-\`
+```
 
 **Test dans le conteneur :**
 
-\`bash
-
+```bash
 docker exec -it mongo-tp mongosh
-
-\`
+```
 
 **Dans mongosh :**
 
-\`javascript
+```javascript
 
 show dbs
 
 exit
-
-\`
+```
 
 ### Lancement d'Apache Spark
 
-\`bash
+```bash
 
 docker pull apache/spark:3.5.6
+```
 
-\`
 
-
-\`bash
+```bash
 
 docker run -it --name spark-tp --network tp-net \
   -v C:\tp_docker_spark_mongo\data:/data \
@@ -153,16 +134,14 @@ docker run -it --name spark-tp --network tp-net \
   -e SPARK_HOME=/opt/spark \
   -e PATH=/opt/spark/bin:/opt/spark/sbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
   apache/spark:3.5.6 bash
-
-\`
+```
 
 ### Vérification de Spark
 
-\`bash
+```bash
 
 ls /opt/spark/bin
-
-\`
+```
 
 ---
 
@@ -170,49 +149,44 @@ ls /opt/spark/bin
 
 ### Spark Shell (Scala)
 
-\`bash
+```bash
 
 /opt/spark/bin/spark-shell
-
-\`
+```
 
 **Quitter :**
 
-\`scala
+```scala
 
 :q
-
-\`
+```
 
 ### PySpark interactif
 
-\`bash
+```bash
 
 /opt/spark/bin/pyspark
-
-\`
+```
 
 **Test rapide :**
 
-\`python
+```python
 
 spark.range(10).show()
 
 exit()
-
-\`
+```
 
 ### Vérification de l'accès au fichier CSV
 
-\`bash
+```bash
 
 ls -l /data
 
 head -n 3 /data/logements_regions.csv
 
 exit
-
-\`
+```
 
 ---
 
@@ -230,42 +204,45 @@ Le script PySpark effectue :
 
 ### Création du script
 
-\`powershell
+```powershell
 
 notepad C:\tp_docker_spark_mongo\scripts\csv_to_json.py
-
-\`
+```
 
 **Contenu du script :**
 
-\`python
+```python
 
 from pyspark.sql import SparkSession
 
 spark = SparkSession.builder.appName("CSV_to_JSON").getOrCreate()
 
 df = spark.read.csv("/data/logements_regions.csv", header=True, inferSchema=True)
-
+```
 # Nettoyage des noms de colonnes
+```
 df = df.toDF(*[col.lower().replace(" ", "_").replace("-", "_") for col in df.columns])
+```
 
 # Suppression des doublons
+```
 df = df.dropDuplicates()
+```
 
 # Export JSON
+```
 df.coalesce(1).write.mode("overwrite").json("/output/logements_regions_json")
 
 print("Transformation terminée")
 
 spark.stop()
-
-\`
+```
 
 ### Exécution du script
 
 **Redémarrage du conteneur Spark :**
 
-\`bash
+```bash
 
 docker ps -a
 
@@ -274,48 +251,43 @@ docker start spark-tp
 docker ps
 
 docker exec -it spark-tp bash
-
-\`
+```
 
 **Vérification du script :**
 
-\`bash
+```bash
 
 ls -l /scripts
-
-\`
+```
 
 **Exécution :**
 
-\`bash
+```bash
 
 /opt/spark/bin/spark-submit /scripts/csv_to_json.py
-
-\`
+```
 
 **Vérification des fichiers générés :**
 
-\`bash
+```bash
 
 ls -lah /output/logements_regions_json
 
 head -n 20 /output/logements_regions_json/part-*.json
 
 exit
-
-\`
+```
 
 ---
 
 ##  8. Vérification côté Windows
 
-\`powershell
+```powershell
 
 dir C:\tp_docker_spark_mongo\output\logements_regions_json
 
 Get-Content C:\tp_docker_spark_mongo\output\logements_regions_json\part-*.json -TotalCount 3
-
-\`
+```
 
 ---
 
@@ -329,15 +301,14 @@ MongoDB a été choisi car :
 
 ### Création de la collection
 
-\`bash
+```bash
 
 docker exec -it mongo-tp mongosh
-
-\`
+```
 
 **Dans mongosh :**
 
-\`javascript
+```javascript
 
 use tp_logements
 
@@ -346,30 +317,27 @@ db.createCollection("logements_regions")
 show collections
 
 exit
-
-\`
+```
 
 ### Importation des JSON vers MongoDB
 
 **Copie des fichiers dans le conteneur :**
 
-\`powershell
+```powershell
 
 docker cp C:\tp_docker_spark_mongo\output\logements_regions_json mongo-tp:/data_json
-
-\`
+```
 
 **Accès au conteneur MongoDB :**
 
-\`bash
+```bash
 
 docker exec -it mongo-tp bash
-
-\`
+```
 
 **Dans le bash du conteneur :**
 
-\`bash
+```bash
 
 for f in /data_json/logements_regions_json/part-*.json; do
   mongoimport \
@@ -377,20 +345,18 @@ for f in /data_json/logements_regions_json/part-*.json; do
     --collection logements_regions \
     --file "\"
 done
-
-\`
+```
 
 ### Vérification de l'importation
 
-\`bash
+```bash
 
 mongosh
-
-\`
+```
 
 **Dans mongosh :**
 
-\`javascript
+```javascript
 
 use tp_logements
 
@@ -399,18 +365,16 @@ db.logements_regions.countDocuments()
 db.logements_regions.findOne()
 
 exit
-
-\`
+```
 
 **Quittez le conteneur :**
 
-\`bash
+```bash
 
 exit
 
 exit
-
-\`
+```
 
 ---
 
